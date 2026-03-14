@@ -20,12 +20,20 @@ import kotlinx.coroutines.flow.flowOf
 
 @ContributesBinding(AppScope::class)
 class DefaultEnterpriseService : EnterpriseService {
+    private companion object {
+        const val AVIVA_HOMESERVER_URL = "https://chat.avivaeu.org"
+        const val AVIVA_PUSH_GATEWAY_URL = "https://push.chat.avivaeu.org/_matrix/push/v1/notify"
+    }
+
     override val isEnterpriseBuild = false
 
     override suspend fun isEnterpriseUser(sessionId: SessionId) = false
 
-    override fun defaultHomeserverList(): List<String> = emptyList()
-    override suspend fun isAllowedToConnectToHomeserver(homeserverUrl: String) = true
+    override fun defaultHomeserverList(): List<String> = listOf(AVIVA_HOMESERVER_URL)
+
+    override suspend fun isAllowedToConnectToHomeserver(homeserverUrl: String): Boolean {
+        return homeserverUrl.trimEnd('/') == AVIVA_HOMESERVER_URL
+    }
 
     override suspend fun overrideBrandColor(sessionId: SessionId?, brandColor: String?) = Unit
 
@@ -37,8 +45,8 @@ class DefaultEnterpriseService : EnterpriseService {
         return flowOf(SemanticColorsLightDark.default)
     }
 
-    override fun firebasePushGateway(): String? = null
-    override fun unifiedPushDefaultPushGateway(): String? = null
+    override fun firebasePushGateway(): String = AVIVA_PUSH_GATEWAY_URL
+    override fun unifiedPushDefaultPushGateway(): String = AVIVA_PUSH_GATEWAY_URL
 
     override fun bugReportUrlFlow(sessionId: SessionId?): Flow<BugReportUrl> {
         return flowOf(BugReportUrl.UseDefault)

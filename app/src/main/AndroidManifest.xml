@@ -67,7 +67,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
             <!-- Handle deep-link for notification ./tools/adb/deeplink.sh -->
-            <intent-filter>
+            <intent-filter android:autoVerify="true">
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <data
@@ -77,13 +77,28 @@
             <!--
               Oidc redirection
             -->
-            <intent-filter>
+            <intent-filter android:autoVerify="true">
                 <action android:name="android.intent.action.VIEW" />
 
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
 
                 <data android:scheme="@string/login_redirect_scheme" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data
+                    android:scheme="https"
+                    android:host="chat.avivaeu.org"
+                    android:pathPrefix="/oidc" />
+                <data
+                    android:scheme="https"
+                    android:host="web.chat.avivaeu.org"
+                    android:pathPrefix="/oidc" />
             </intent-filter>
             <!--
               Element web links
@@ -95,13 +110,7 @@
                 <category android:name="android.intent.category.BROWSABLE" />
 
                 <data android:scheme="https" />
-                <!-- Note: we can't use "*.element.io" here because it'll intercept the "mas.element.io" domain too. -->
-                <!-- Matching asset file: https://app.element.io/.well-known/assetlinks.json -->
-                <data android:host="app.element.io" />
-                <!-- Matching asset file: https://develop.element.io/.well-known/assetlinks.json -->
-                <data android:host="develop.element.io" />
-                <!-- Matching asset file: https://staging.element.io/.well-known/assetlinks.json -->
-                <data android:host="staging.element.io" />
+                <data android:host="chat.avivaeu.org" />
             </intent-filter>
             <!--
               Element mobile links
@@ -114,8 +123,7 @@
                 <category android:name="android.intent.category.BROWSABLE" />
 
                 <data android:scheme="https" />
-                <!-- Matching asset file: https://mobile.element.io/.well-known/assetlinks.json -->
-                <data android:host="mobile.element.io" />
+                <data android:host="chat.avivaeu.org" />
                 <data android:path="/element/" />
             </intent-filter>
             <!--

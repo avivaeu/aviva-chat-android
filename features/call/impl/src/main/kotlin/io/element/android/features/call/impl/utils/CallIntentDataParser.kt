@@ -16,7 +16,7 @@ import dev.zacsweers.metro.Inject
 class CallIntentDataParser {
     private val validHttpSchemes = sequenceOf("https")
     private val knownHosts = sequenceOf(
-        "call.element.io",
+        "web.chat.avivaeu.org",
     )
 
     fun parse(data: String?): String? {

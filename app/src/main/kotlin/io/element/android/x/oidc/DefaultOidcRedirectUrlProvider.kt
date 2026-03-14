@@ -12,6 +12,7 @@ import dev.zacsweers.metro.AppScope
 import dev.zacsweers.metro.ContributesBinding
 import io.element.android.libraries.matrix.api.auth.OidcRedirectUrlProvider
 import io.element.android.services.toolbox.api.strings.StringProvider
+import io.element.android.x.BuildConfig
 import io.element.android.x.R
 
 @ContributesBinding(AppScope::class)
@@ -19,7 +20,12 @@ class DefaultOidcRedirectUrlProvider(
     private val stringProvider: StringProvider,
 ) : OidcRedirectUrlProvider {
     override fun provide() = buildString {
-        append(stringProvider.getString(R.string.login_redirect_scheme))
-        append(":/")
+        val configuredRedirectUrl = BuildConfig.OIDC_REDIRECT_URL
+        if (configuredRedirectUrl.isNotBlank()) {
+            append(configuredRedirectUrl)
+        } else {
+            append(stringProvider.getString(R.string.login_redirect_scheme))
+            append(":/")
+        }
     }
 }

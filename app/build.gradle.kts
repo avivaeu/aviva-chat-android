@@ -51,6 +51,10 @@ android {
         targetSdk = Versions.TARGET_SDK
         versionCode = Versions.VERSION_CODE
         versionName = Versions.VERSION_NAME
+        buildConfigFieldStr(
+            name = "OIDC_REDIRECT_URL",
+            value = BuildTimeConfig.OIDC_REDIRECT_URL ?: "",
+        )
 
         // Keep abiFilter for the universalApk
         ndk {
