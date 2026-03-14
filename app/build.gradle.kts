@@ -13,6 +13,7 @@ import com.android.build.gradle.internal.tasks.factory.dependsOn
 import com.android.build.gradle.tasks.GenerateBuildConfig
 import com.google.firebase.appdistribution.gradle.firebaseAppDistribution
 import config.BuildTimeConfig
+import org.gradle.api.GradleException
 import extension.AssetCopyTask
 import extension.GitBranchNameValueSource
 import extension.GitRevisionValueSource
@@ -90,11 +91,45 @@ android {
     }
 
     signingConfigs {
+        val buildingRelease = gradle.startParameter.taskNames.any {
+            it.contains("Release", ignoreCase = true) || it.contains("publish", ignoreCase = true)
+        }
+
+        val avivaReleaseStoreFile = System.getenv("AVIVA_RELEASE_STORE_FILE")
+            ?: providers.gradleProperty("signing.aviva.release.storeFile").orNull
+        val avivaReleaseStorePassword = System.getenv("AVIVA_RELEASE_STORE_PASSWORD")
+            ?: providers.gradleProperty("signing.aviva.release.storePassword").orNull
+        val avivaReleaseKeyAlias = System.getenv("AVIVA_RELEASE_KEY_ALIAS")
+            ?: providers.gradleProperty("signing.aviva.release.keyAlias").orNull
+        val avivaReleaseKeyPassword = System.getenv("AVIVA_RELEASE_KEY_PASSWORD")
+            ?: providers.gradleProperty("signing.aviva.release.keyPassword").orNull
+
+        if (buildingRelease) {
+            if (avivaReleaseStoreFile.isNullOrBlank()) {
+                throw GradleException("Missing release signing secret: signing.aviva.release.storeFile (or AVIVA_RELEASE_STORE_FILE)")
+            }
+            if (avivaReleaseStorePassword.isNullOrBlank()) {
+                throw GradleException("Missing release signing secret: signing.aviva.release.storePassword (or AVIVA_RELEASE_STORE_PASSWORD)")
+            }
+            if (avivaReleaseKeyAlias.isNullOrBlank()) {
+                throw GradleException("Missing release signing secret: signing.aviva.release.keyAlias (or AVIVA_RELEASE_KEY_ALIAS)")
+            }
+            if (avivaReleaseKeyPassword.isNullOrBlank()) {
+                throw GradleException("Missing release signing secret: signing.aviva.release.keyPassword (or AVIVA_RELEASE_KEY_PASSWORD)")
+            }
+        }
+
         getByName("debug") {
             keyAlias = "androiddebugkey"
             keyPassword = "android"
             storeFile = file("./signature/debug.keystore")
             storePassword = "android"
+        }
+        register("avivaRelease") {
+            keyAlias = avivaReleaseKeyAlias
+            keyPassword = avivaReleaseKeyPassword
+            storeFile = avivaReleaseStoreFile?.let { file(it) }
+            storePassword = avivaReleaseStorePassword
         }
         register("nightly") {
             keyAlias = System.getenv("ELEMENT_ANDROID_NIGHTLY_KEYID")
@@ -131,7 +166,7 @@ android {
                 "login_redirect_scheme",
                 oidcRedirectSchemeBase,
             )
-            signingConfig = signingConfigs.getByName("debug")
+            signingConfig = signingConfigs.getByName("avivaRelease")
 
             optimization {
                 enable = true
